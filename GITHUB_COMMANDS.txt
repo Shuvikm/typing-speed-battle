@@ -1,0 +1,27 @@
+# 🚀 GitHub Upload Commands
+# Copy and paste these commands one by one in your terminal
+
+# Step 1: Create repository on GitHub first
+# Go to: https://github.com/new
+# Name: typing-speed-battle
+# Description: ⚔️ Anime-themed typing speed battle game with real-time multiplayer, quiz system, MongoDB integration, and anime.js animations 🏴‍☠️
+# DO NOT initialize with README
+# Click Create repository
+
+# Step 2: Add remote (if not already added)
+git remote add origin https://github.com/Shuvikm/typing-speed-battle.git
+
+# Step 3: Rename branch to main
+git branch -M main
+
+# Step 4: Push to GitHub
+git push -u origin main
+
+# If authentication is required:
+# - Username: Shuvikm
+# - Password: Use Personal Access Token (create at https://github.com/settings/tokens)
+
+# If remote already exists, remove it first:
+# git remote remove origin
+# Then run: git remote add origin https://github.com/Shuvikm/typing-speed-battle.git
+
