@@ -1,13 +1,72 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-white font-anime;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    font-family: 'Orbitron', 'Rajdhani', 'Arial', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Audiowide', 'Orbitron', 'Rajdhani', sans-serif;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer utilities {
+  .text-glow-blue {
+    text-shadow: 0 0 10px #00D9FF, 0 0 20px #00D9FF, 0 0 30px #00D9FF;
+  }
+  
+  .text-glow-purple {
+    text-shadow: 0 0 10px #B026FF, 0 0 20px #B026FF, 0 0 30px #B026FF;
+  }
+  
+  .text-glow-green {
+    text-shadow: 0 0 10px #00FF41, 0 0 20px #00FF41;
+  }
+  
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(0, 217, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 217, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* Opacity utilities that blend with background */
+  .opacity-blend {
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+  }
+
+  .opacity-blend-light {
+    opacity: 0.5;
+    mix-blend-mode: screen;
+  }
+
+  .opacity-blend-dark {
+    opacity: 0.2;
+    mix-blend-mode: multiply;
+  }
+
+  /* Background with opacity animation */
+  .bg-opacity-animated {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 217, 255, 0.1) 0%,
+      rgba(176, 38, 255, 0.1) 50%,
+      rgba(0, 217, 255, 0.1) 100%
+    );
+    background-size: 200% 200%;
+    animation: opacity-fade-bg 5s ease-in-out infinite;
+  }
 }
