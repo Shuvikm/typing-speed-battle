@@ -1,70 +1,228 @@
-# Getting Started with Create React App
+# ⚔️ Typing Speed Battle 🏴‍☠️
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An epic anime-themed typing speed battle game with real-time multiplayer support! Combine the thrill of competitive typing with the adventure of One Piece.
 
-## Available Scripts
+![Typing Speed Battle](https://img.shields.io/badge/React-19.2.3-blue) ![Socket.io](https://img.shields.io/badge/Socket.io-4.8.3-green) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.19-38bdf8) ![MongoDB](https://img.shields.io/badge/MongoDB-Ready-47a248)
 
-In the project directory, you can run:
+## 🎨 Features
 
-### `npm start`
+- **🎯 Anime + Neon + Hacker Hybrid UI** - Beautiful combination of all three themes
+- **⚔️ Real-time Multiplayer Battles** - Challenge friends in live typing competitions
+- **🎯 Solo Practice Mode** - Improve your skills on your own
+- **🧠 Quiz System** - Test your One Piece knowledge with typing challenges
+- **👤 Pirate Avatars** - Choose from 9 Straw Hat crew members (Luffy, Zoro, Nami, etc.)
+- **📊 Real-time Stats** - WPM, Accuracy, Combo streaks, and more
+- **🏆 Rank System** - Earn titles like "Pirate King", "Yonko", "Super Rookie"
+- **🎬 Anime.js Animations** - Smooth, professional animations
+- **🔊 Sound Effects** - Audio feedback for all actions
+- **🗄️ MongoDB Integration** - Persistent leaderboards and player stats
+- **🎨 Custom Fonts** - Anime-style Google Fonts (Orbitron, Audiowide, etc.)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🚀 Quick Start
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Prerequisites
 
-### `npm test`
+- Node.js (v14 or higher)
+- npm or yarn
+- MongoDB (optional, for persistent data)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Installation
 
-### `npm run build`
+1. **Clone the repository:**
+```bash
+git clone https://github.com/Shuvikm/typing-speed-battle.git
+cd typing-speed-battle
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. **Install dependencies:**
+```bash
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. **Set up environment variables (optional):**
+```bash
+cp .env.example .env
+# Edit .env with your MongoDB connection string
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. **Start the backend server:**
+```bash
+npm run server
+```
 
-### `npm run eject`
+5. **Start the React app (in another terminal):**
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+6. **Or run both together:**
+```bash
+npm run dev
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Access the App
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Frontend**: http://localhost:3000
+- **Backend Server**: http://localhost:3001
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🎮 How to Play
 
-## Learn More
+1. **Home Page**: Choose between Solo Practice, Battle Mode, or Quiz
+2. **Room Setup**: 
+   - Enter your pirate name
+   - Select your avatar (Straw Hat crew member)
+   - Create a new room or join an existing one
+3. **Battle**: 
+   - Wait for the countdown (3...2...1...)
+   - Type the text as fast and accurately as possible
+   - Watch your WPM, accuracy, and combo meter
+   - See real-time opponent progress (in battle mode)
+4. **Results**: 
+   - View your performance stats
+   - See your rank title
+   - Check the leaderboard (battle mode)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🏆 Rank Titles
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **👑 Pirate King** (100+ WPM)
+- **⭐ Yonko** (80+ WPM)
+- **🔥 Super Rookie** (60+ WPM)
+- **💪 Pirate Captain** (40+ WPM)
+- **Marine Captain** (20+ WPM)
+- **Cabin Boy** (<20 WPM)
 
-### Code Splitting
+## 🛠️ Tech Stack
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **Frontend**: React 19, TailwindCSS 3, React Router 7
+- **Backend**: Node.js, Express, Socket.io 4
+- **Database**: MongoDB with Mongoose
+- **Animations**: Anime.js 3
+- **Real-time**: WebSocket connections for multiplayer
 
-### Analyzing the Bundle Size
+## 📁 Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+typing-speed-battle/
+├── src/
+│   ├── components/     # Reusable UI components
+│   │   ├── Button.jsx
+│   │   ├── Card.jsx
+│   │   ├── Avatar.jsx
+│   │   ├── ProgressBar.jsx
+│   │   ├── AnimeBackground.jsx
+│   │   ├── PowerUp.jsx
+│   │   └── Achievement.jsx
+│   ├── pages/          # Main pages
+│   │   ├── Home.jsx
+│   │   ├── Room.jsx
+│   │   ├── Game.jsx
+│   │   ├── Results.jsx
+│   │   └── Quiz.jsx
+│   ├── utils/          # Utilities
+│   │   ├── gameLogic.js
+│   │   ├── socket.js
+│   │   ├── animeHelper.js
+│   │   └── sounds.js
+│   └── assets/         # Static assets
+├── config/             # Configuration
+│   └── database.js
+├── models/             # MongoDB models
+│   ├── Player.js
+│   ├── Game.js
+│   └── Leaderboard.js
+├── server.js           # Backend Socket.io server
+├── tailwind.config.js  # Tailwind configuration
+└── package.json
+```
 
-### Making a Progressive Web App
+## 🎨 Theme Details
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Background**: Dark hacker grid with neon accents
+- **Colors**: Electric Blue (#00D9FF), Neon Purple (#B026FF), Hacker Green (#00FF41), Pirate Red/Yellow
+- **Animations**: Glowing effects, pulse animations, matrix-style falling text
+- **Fonts**: Orbitron, Audiowide, Rajdhani, Bangers
+- **Icons**: One Piece inspired avatars and emojis
 
-### Advanced Configuration
+## 🔧 Development
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Available Scripts
 
-### Deployment
+- `npm start` - Start React development server
+- `npm run server` - Start backend server
+- `npm run dev` - Run both frontend and backend
+- `npm run build` - Build for production
+- `npm test` - Run tests
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Environment Variables
 
-### `npm run build` fails to minify
+Create a `.env` file in the root directory:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```env
+MONGODB_URI=mongodb://localhost:27017/typing-speed-battle
+PORT=3001
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
+```
+
+## 📚 Documentation
+
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide
+- [README_MONGODB.md](./README_MONGODB.md) - MongoDB setup instructions
+- [ANIME_SETUP.md](./ANIME_SETUP.md) - Anime.js and video setup
+- [INNOVATIVE_FEATURES.md](./INNOVATIVE_FEATURES.md) - Feature ideas and roadmap
+- [FEATURES.md](./FEATURES.md) - Complete features list
+
+## 🎯 Game Modes
+
+### Solo Practice
+- Practice typing alone
+- Improve your WPM and accuracy
+- No multiplayer required
+
+### Battle Mode
+- Real-time multiplayer battles
+- Compete against friends
+- Live progress tracking
+- Winner determination
+
+### Quiz Mode
+- One Piece themed questions
+- Typing challenges after each question
+- Leaderboard system
+- Score tracking
+
+## 🚀 Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+
+**Quick Deploy:**
+- Frontend: Vercel or Netlify
+- Backend: Railway or Render
+- Database: MongoDB Atlas
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is open source and available under the MIT License.
+
+## 👤 Author
+
+**Shuvik M**
+- GitHub: [@Shuvikm](https://github.com/Shuvikm)
+
+## 🙏 Acknowledgments
+
+- Inspired by One Piece anime
+- Built with React and modern web technologies
+- Special thanks to the open-source community
+
+## 🏴‍☠️ Enjoy the Battle!
+
+Set sail and become the Pirate King of typing! ⚔️⌨️
+
+---
+
+⭐ If you like this project, please give it a star on GitHub!
