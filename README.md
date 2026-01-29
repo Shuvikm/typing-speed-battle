@@ -226,3 +226,5 @@ Set sail and become the Pirate King of typing! ⚔️⌨️
 ---
 
 ⭐ If you like this project, please give it a star on GitHub!
+And i am going to implement the player versus player typing battle
+
