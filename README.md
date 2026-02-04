@@ -20,7 +20,7 @@ An epic anime-themed typing speed battle game with real-time multiplayer support
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Prerequisites,,
 
 - Node.js (v14 or higher)
 - npm or yarn
