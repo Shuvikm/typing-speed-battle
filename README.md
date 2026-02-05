@@ -48,7 +48,7 @@ cp .env.example .env
 4. **Start the backend server:**
 ```bash
 npm run server
-```
+
 
 5. **Start the React app (in another terminal):**
 ```bash
