@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createSocket, socketEvents } from '../utils/socket';
 import { calculateWPM, calculateAccuracy, checkChar, calculateCombo } from '../utils/gameLogic';
-import Card from '../components/Card';
 import ProgressBar from '../components/ProgressBar';
 import Avatar from '../components/Avatar';
 import AnimatedCountdown from '../components/AnimatedCountdown';
