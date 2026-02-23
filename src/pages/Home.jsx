@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
-import Card from '../components/Card';
 import AnimeBackground from '../components/AnimeBackground';
 
 const TITLE = '⚔️ TYPING SPEED BATTLE ⚔️';
@@ -11,8 +9,8 @@ const Home = () => {
   const [showContent, setShowContent] = useState(false);
   const [visibleLetters, setVisibleLetters] = useState(0);
   const [mascotFrame, setMascotFrame] = useState(0);
+  const [titleHovered, setTitleHovered] = useState(false);
 
-  // Letter-by-letter title entrance
   useEffect(() => {
     const t = setTimeout(() => setShowContent(true), 200);
     return () => clearTimeout(t);
@@ -29,7 +27,6 @@ const Home = () => {
     return () => clearInterval(iv);
   }, [showContent]);
 
-  // Mascot animation frames
   useEffect(() => {
     const iv = setInterval(() => setMascotFrame(f => (f + 1) % 4), 600);
     return () => clearInterval(iv);
@@ -63,7 +60,7 @@ const Home = () => {
     {
       emoji: '🧠',
       title: 'Quiz Battle',
-      desc: 'Compete in Kahoot-style quiz + typing rounds!',
+      desc: 'Kahoot-style quiz + typing rounds!',
       color: '#FFD700',
       gradient: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(176,38,255,0.05))',
       border: '#FFD700',
@@ -71,6 +68,18 @@ const Home = () => {
       delay: '0.3s',
       path: '/quiz',
       badge: '⭐ NEW',
+    },
+    {
+      emoji: '⏱️',
+      title: 'Time Trial',
+      desc: 'Type anime passages against the clock!',
+      color: '#B026FF',
+      gradient: 'linear-gradient(135deg, rgba(176,38,255,0.15), rgba(0,217,255,0.05))',
+      border: '#B026FF',
+      shadow: '#B026FF40',
+      delay: '0.4s',
+      path: '/timed',
+      badge: '🆕 HOT',
     },
   ];
 
@@ -98,11 +107,10 @@ const Home = () => {
           {[...Array(15)].map((_, i) => (
             <div
               key={i}
-              className="absolute text-hacker-green text-xs font-mono animate-matrix-fall"
+              className="absolute text-hacker-green text-xs font-mono"
               style={{
                 left: `${(i / 15) * 100}%`,
-                animationDelay: `${i * 1.3}s`,
-                animationDuration: '20s',
+                animation: `matrix-fall 20s ${i * 1.3}s linear infinite`,
               }}
             >
               {Math.random().toString(36).substring(2, 8)}
@@ -123,21 +131,28 @@ const Home = () => {
           {/* Mascot */}
           {showContent && (
             <div
-              className="text-7xl mb-4 select-none"
+              className="text-7xl mb-4 select-none cursor-pointer"
               style={{
                 animation: 'float 2s ease-in-out infinite',
                 filter: 'drop-shadow(0 0 20px #FFD700)',
                 transition: 'all 0.3s',
               }}
+              title="Yohoho! ☠️"
             >
               {mascotFrames[mascotFrame]}
             </div>
           )}
 
-          {/* Title - letter by letter */}
+          {/* Title - letter by letter with glitch on hover */}
           <h1
-            className="text-4xl md:text-6xl font-bold mb-2 text-center"
-            style={{ fontFamily: 'Audiowide, Orbitron, sans-serif', lineHeight: 1.2 }}
+            className="text-4xl md:text-6xl font-bold mb-2 text-center cursor-pointer"
+            style={{
+              fontFamily: 'Audiowide, Orbitron, sans-serif',
+              lineHeight: 1.2,
+              animation: titleHovered ? 'glitch 0.4s steps(1) forwards' : 'none',
+            }}
+            onMouseEnter={() => setTitleHovered(true)}
+            onMouseLeave={() => setTitleHovered(false)}
           >
             {TITLE.split('').map((char, i) => (
               <span
@@ -150,6 +165,7 @@ const Home = () => {
                   color: i % 4 === 0 ? '#00D9FF' : i % 4 === 1 ? '#FFD700' : i % 4 === 2 ? '#B026FF' : '#00FF41',
                   textShadow: i < visibleLetters ? `0 0 20px currentColor` : 'none',
                   whiteSpace: char === ' ' ? 'pre' : 'normal',
+                  animationDelay: titleHovered ? `${i * 0.02}s` : '0s',
                 }}
               >
                 {char}
@@ -157,6 +173,7 @@ const Home = () => {
             ))}
           </h1>
 
+          {/* Animated wave subtitle */}
           <p
             className="text-lg text-gray-400 mb-10 text-center"
             style={{
@@ -171,8 +188,8 @@ const Home = () => {
             <span style={{ color: '#FFD700', fontWeight: 700 }}>Pirate King</span> of keyboards!
           </p>
 
-          {/* Mode cards */}
-          <div className="grid md:grid-cols-3 gap-6 w-full max-w-4xl mb-10">
+          {/* Mode cards — 2x2 grid on mobile, 4 cols on large */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-5xl mb-10">
             {modes.map((mode, idx) => (
               <div
                 key={idx}
@@ -196,15 +213,16 @@ const Home = () => {
                   </div>
                 )}
                 <div
-                  className="rounded-2xl p-6 text-center h-full transition-all duration-300"
+                  className="rounded-2xl p-5 text-center h-full transition-all duration-300"
                   style={{
                     background: mode.gradient,
                     border: `2px solid ${mode.border}`,
                     boxShadow: `0 0 0 0 ${mode.shadow}`,
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                    '--neon-color': mode.color,
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.03)';
                     e.currentTarget.style.boxShadow = `0 20px 40px ${mode.shadow}, 0 0 30px ${mode.shadow}`;
                   }}
                   onMouseLeave={e => {
@@ -212,13 +230,13 @@ const Home = () => {
                     e.currentTarget.style.boxShadow = `0 0 0 0 ${mode.shadow}`;
                   }}
                 >
-                  <div className="text-6xl mb-4" style={{ animation: 'float 3s ease-in-out infinite', animationDelay: `${idx * 0.5}s` }}>
+                  <div className="text-5xl mb-3" style={{ animation: `float 3s ease-in-out infinite`, animationDelay: `${idx * 0.5}s` }}>
                     {mode.emoji}
                   </div>
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: mode.color, fontFamily: 'Audiowide, sans-serif' }}>
+                  <h2 className="text-lg font-bold mb-1" style={{ color: mode.color, fontFamily: 'Audiowide, sans-serif' }}>
                     {mode.title}
                   </h2>
-                  <p className="text-gray-400 text-sm leading-relaxed">{mode.desc}</p>
+                  <p className="text-gray-400 text-xs leading-relaxed">{mode.desc}</p>
                 </div>
               </div>
             ))}
@@ -263,8 +281,9 @@ const Home = () => {
               }}
             >
               {[
-                { label: 'Modes', value: '3' },
-                { label: 'Questions', value: '15+' },
+                { label: 'Modes', value: '4' },
+                { label: 'Questions', value: '50+' },
+                { label: 'Passages', value: '15' },
                 { label: 'Players', value: '∞' },
               ].map((stat, i) => (
                 <div key={i}>
