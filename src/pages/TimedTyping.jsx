@@ -51,7 +51,6 @@ const TimedTyping = () => {
 
     // Stats
     const [correctChars, setCorrectChars] = useState(0);
-    const [wrongChars, setWrongChars] = useState(0);
     const [wpm, setWpm] = useState(0);
     const [accuracy, setAccuracy] = useState(100);
 
@@ -178,7 +177,6 @@ const TimedTyping = () => {
 
         setUserInput(val);
         setCorrectChars(newCorrect);
-        setWrongChars(newWrong);
         statsRef.current = { correct: newCorrect, wrong: newWrong, total: val.length, words };
 
         if (val === target) {
