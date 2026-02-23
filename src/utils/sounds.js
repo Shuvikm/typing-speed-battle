@@ -1,8 +1,10 @@
 // Sound effects utility
+const SOUND_ENABLED_KEY = 'tsb_sound_enabled';
+
 class SoundManager {
   constructor() {
     this.sounds = {};
-    this.enabled = true;
+    this.enabled = this.loadEnabled();
     this.volume = 0.5;
   }
 
@@ -39,16 +41,40 @@ class SoundManager {
 
   enable() {
     this.enabled = true;
+    this.saveEnabled();
   }
 
   disable() {
     this.enabled = false;
+    this.saveEnabled();
+  }
+
+  toggle() {
+    if (this.enabled) this.disable();
+    else this.enable();
+    return this.enabled;
   }
 
   setVolume(volume) {
     this.volume = Math.max(0, Math.min(1, volume));
   }
+
+  /** Persist enabled state to localStorage */
+  saveEnabled() {
+    try {
+      localStorage.setItem(SOUND_ENABLED_KEY, JSON.stringify(this.enabled));
+    } catch { /* ignore */ }
+  }
+
+  /** Load enabled state from localStorage (defaults to true) */
+  loadEnabled() {
+    try {
+      const stored = localStorage.getItem(SOUND_ENABLED_KEY);
+      return stored !== null ? JSON.parse(stored) : true;
+    } catch {
+      return true;
+    }
+  }
 }
 
 export const soundManager = new SoundManager();
-
