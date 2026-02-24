@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 
-// Keyboard layout rows
+/* ─── Layout ──────────────────────────────────────────────────────────────── */
 const ROWS = [
     ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
     ['Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
@@ -8,170 +8,155 @@ const ROWS = [
     ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '>Shift'],
     ['Ctrl', 'Alt', ' ', 'Alt', 'Ctrl'],
 ];
+const WIDE = new Set(['Backspace', 'Tab', 'Caps', 'Enter', 'Shift', '>Shift', 'Ctrl', 'Alt']);
 
-const WIDE_KEYS = new Set(['Backspace', 'Tab', 'Caps', 'Enter', 'Shift', '>Shift', 'Ctrl', 'Alt']);
-const SPACEBAR_KEY = ' ';
-
-// Map display label → actual key value (what keydown.key returns)
-const KEY_TO_VALUE = {
-    'Backspace': 'Backspace', 'Tab': 'Tab', 'Caps': 'CapsLock', 'Enter': 'Enter',
-    'Shift': 'Shift', '>Shift': 'Shift', 'Ctrl': 'Control', 'Alt': 'Alt',
-    ' ': ' ',
-};
-
-const displayLabel = (k) => {
+const LABEL = (k) => {
     if (k === '>Shift') return 'Shift';
-    if (k === 'Caps') return 'Caps';
     if (k === ' ') return 'Space';
-    return k.toUpperCase();
+    return k.length === 1 ? k.toUpperCase() : k;
 };
+const VALUE = (k) => ({ '>Shift': 'Shift', 'Caps': 'CapsLock' })[k] ?? k;
 
-// The exact character that needs to be typed → which key to highlight
-const charToKey = (ch) => {
-    if (!ch) return null;
-    const lower = ch.toLowerCase();
-    return lower; // keys are stored lowercase; special chars handled below
-};
-
-const KEY_ACCENT_COLORS = {
-    correct: '#00FF41',
-    next: '#FFD700',
-    pressed: '#00D9FF',
-    error: '#FF4444',
+/* ─── Neon palette ────────────────────────────────────────────────────────── */
+const C = {
+    next: '#00D9FF',   // cyan   — next key to press
+    correct: '#00FF41',   // green  — key just pressed correctly
+    error: '#FF4444',   // red    — wrong key
+    pressed: '#B026FF',   // purple — any other live keypress
+    accent: '#FFD700',   // gold   — modifiers / special keys
+    bg: '#1a1a2e',
+    keyBg: '#0e0e1a',
+    keyBg2: '#181828',
 };
 
 /**
  * VirtualKeyboard
- * Props:
- *   nextChar   string   — the next character the user needs to type
- *   lastError  bool     — true for one tick when the last keypress was wrong
- *   compact    bool     — render smaller (for sidebar / mobile)
+ *  nextChar  — next character the user must type
+ *  lastError — true for ~400 ms when a wrong key was pressed
+ *  compact   — render smaller (default true)
  */
-const VirtualKeyboard = ({ nextChar = '', lastError = false, compact = false }) => {
-    const [pressedKeys, setPressedKeys] = useState(new Set());
+const VirtualKeyboard = ({ nextChar = '', lastError = false, compact = true }) => {
+    const [pressed, setPressed] = useState(new Set());
 
-    const handleKeyDown = useCallback((e) => {
-        setPressedKeys(prev => new Set([...prev, e.key.toLowerCase()]));
+    const down = useCallback((e) => {
+        setPressed(p => new Set([...p, e.key.toLowerCase()]));
     }, []);
-    const handleKeyUp = useCallback((e) => {
-        setPressedKeys(prev => {
-            const next = new Set(prev);
-            next.delete(e.key.toLowerCase());
-            return next;
-        });
+    const up = useCallback((e) => {
+        setPressed(p => { const n = new Set(p); n.delete(e.key.toLowerCase()); return n; });
     }, []);
 
     useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-        };
-    }, [handleKeyDown, handleKeyUp]);
+        window.addEventListener('keydown', down);
+        window.addEventListener('keyup', up);
+        return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
+    }, [down, up]);
 
-    const nextKeyLower = charToKey(nextChar);
+    const nextLower = nextChar ? nextChar.toLowerCase() : '';
 
-    const getKeyStyle = (k) => {
-        const keyValue = KEY_TO_VALUE[k] ?? k;
-        const keyLower = keyValue.toLowerCase();
-        const isNext = nextKeyLower && keyLower === nextKeyLower;
-        const isPressed = pressedKeys.has(keyLower);
-        const isSpace = k === SPACEBAR_KEY;
+    const keyStyle = (k) => {
+        const val = VALUE(k).toLowerCase();
+        const isNext = !!nextLower && val === nextLower;
+        const isLive = pressed.has(val);
+        const isSpace = k === ' ';
+        const isWide = WIDE.has(k);
+        const isMod = ['Ctrl', 'Alt', 'Caps', 'Tab', 'Shift', '>Shift'].includes(k);
 
-        let bg = 'linear-gradient(145deg, #2a2a2a, #1a1a1a)';
-        let color = '#c0c0c0';
-        let boxShadow = compact
-            ? '0 4px 0 rgba(0,0,0,0.5), 0 6px 10px rgba(0,0,0,0.4)'
-            : '0 6px 0 rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.5)';
-        let transform = 'translateY(0)';
-        let border = '1px solid rgba(255,255,255,0.06)';
+        const minWidth = isSpace ? (compact ? 96 : 140)
+            : isWide ? (compact ? 40 : 54)
+                : compact ? 26 : 36;
+        const height = k === ' ' ? (compact ? 26 : 36) : compact ? 26 : 36;
+
+        /* colour logic */
+        let bg = `linear-gradient(160deg, ${C.keyBg2}, ${C.keyBg})`;
+        let color = '#555';
+        let border = `1px solid #ffffff08`;
+        let shadow = `0 3px 0 #00000080, 0 5px 10px #00000060`;
+        let glow = 'none';
+        let ty = '0px';
         let textShadow = 'none';
 
-        if (isNext && !isPressed) {
-            const c = lastError ? KEY_ACCENT_COLORS.error : KEY_ACCENT_COLORS.next;
-            bg = `linear-gradient(145deg, ${c}40, ${c}20)`;
-            color = c;
-            border = `1.5px solid ${c}`;
-            boxShadow = `0 6px 0 ${c}60, 0 0 16px ${c}60, 0 8px 16px rgba(0,0,0,0.5)`;
-            textShadow = `0 0 10px ${c}`;
+        if (isMod) { color = C.accent + '80'; border = `1px solid ${C.accent}15`; }
+        if (isSpace) { bg = `linear-gradient(160deg, #1e1e32, #16162a)`; color = '#2a2a4a'; }
+
+        if (isNext && !isLive) {
+            const nc = lastError ? C.error : C.next;
+            bg = `linear-gradient(160deg, ${nc}25, ${nc}10)`;
+            color = nc;
+            border = `1.5px solid ${nc}90`;
+            shadow = `0 4px 0 ${nc}50, 0 0 18px ${nc}50, 0 5px 14px #00000080`;
+            glow = `0 0 24px ${nc}60`;
+            textShadow = `0 0 12px ${nc}`;
         }
 
-        if (isPressed) {
-            const c = isNext ? KEY_ACCENT_COLORS.correct : KEY_ACCENT_COLORS.pressed;
-            bg = `linear-gradient(145deg, ${c}50, ${c}30)`;
-            color = c;
-            border = `1.5px solid ${c}80`;
-            boxShadow = `0 2px 0 ${c}40, inset 0 2px 4px rgba(0,0,0,0.4)`;
-            transform = 'translateY(2px)';
-            textShadow = `0 0 8px ${c}`;
+        if (isLive) {
+            const lc = isNext ? C.correct : C.pressed;
+            bg = `linear-gradient(160deg, ${lc}35, ${lc}18)`;
+            color = lc;
+            border = `1.5px solid ${lc}70`;
+            shadow = `0 1px 0 ${lc}40, inset 0 2px 5px #00000060`;
+            glow = `0 0 14px ${lc}50`;
+            ty = '2px';
+            textShadow = `0 0 8px ${lc}`;
         }
-
-        // Special key colors (orange accent like original)
-        if (['Enter', 'Tab', '>Shift', 'Shift'].includes(k) && !isNext && !isPressed) {
-            bg = 'linear-gradient(145deg, #3a2800, #2a1a00)';
-            color = '#ff8c00';
-            border = '1px solid rgba(255,140,0,0.2)';
-        }
-        if (['Ctrl', 'Alt', 'Caps'].includes(k) && !isNext && !isPressed) {
-            bg = 'linear-gradient(145deg, #252525, #181818)';
-            color = '#888';
-        }
-        if (isSpace && !isNext && !isPressed) {
-            bg = 'linear-gradient(145deg, #ff8c0015, #ff6b0010)';
-            color = '#ff8c0080';
-            border = '1px solid rgba(255,140,0,0.15)';
-        }
-
-        const scale = compact ? 0.82 : 1;
-        const minWidth = isSpace ? (compact ? 100 : 160)
-            : WIDE_KEYS.has(k) ? (compact ? 42 : 56)
-                : (compact ? 28 : 38);
-        const height = compact ? 28 : 38;
 
         return {
-            minWidth, height: height * (k === SPACEBAR_KEY ? 1 : 1),
-            background: bg, color, border, boxShadow, transform,
-            textShadow, borderRadius: 6, fontSize: compact ? 8 : 10,
-            fontFamily: 'Orbitron, monospace', fontWeight: 600,
-            transition: 'all 0.08s ease', cursor: 'default',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            userSelect: 'none', letterSpacing: '0.03em',
+            minWidth, height, flexShrink: 0,
+            background: bg, color, border, textShadow,
+            borderRadius: 5,
+            boxShadow: shadow,
+            filter: glow !== 'none' ? `drop-shadow(${glow})` : undefined,
+            transform: `translateY(${ty})`,
+            transition: 'all 0.07s ease',
+            fontFamily: "'Orbitron', 'monospace'",
+            fontSize: compact ? 7 : 9,
+            fontWeight: 700,
+            letterSpacing: '0.03em',
+            userSelect: 'none',
+            cursor: 'default',
+            position: 'relative',
+            overflow: 'hidden',
         };
-    };
-
-    const wrapperStyle = {
-        display: 'flex', flexDirection: 'column', gap: compact ? 4 : 5,
-        padding: compact ? 10 : 14,
-        background: 'linear-gradient(145deg, #181818, #0f0f0f)',
-        borderRadius: 14,
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)',
-        transform: 'perspective(800px) rotateX(14deg)',
-        transformOrigin: 'bottom center',
     };
 
     return (
-        <div style={wrapperStyle}>
+        <div style={{
+            display: 'flex', flexDirection: 'column', gap: compact ? 3 : 4,
+            padding: compact ? 10 : 14,
+            background: 'linear-gradient(160deg, #12121e, #0a0a14)',
+            borderRadius: 12,
+            border: '1px solid #ffffff08',
+            boxShadow: '0 24px 48px #00000080, inset 0 1px 0 #ffffff0a',
+            transform: 'perspective(600px) rotateX(10deg)',
+            transformOrigin: 'bottom center',
+        }}>
             {ROWS.map((row, ri) => (
                 <div key={ri} style={{ display: 'flex', gap: compact ? 3 : 4, justifyContent: 'center' }}>
                     {row.map((k, ki) => (
-                        <div key={ki} style={getKeyStyle(k)}>
-                            {displayLabel(k)}
+                        <div key={ki} style={keyStyle(k)}>
+                            {/* shimmer top highlight */}
+                            <div style={{
+                                position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
+                                background: 'linear-gradient(180deg,rgba(255,255,255,0.04),transparent)',
+                                borderRadius: '4px 4px 0 0', pointerEvents: 'none',
+                            }} />
+                            {LABEL(k)}
                         </div>
                     ))}
                 </div>
             ))}
+
             {/* Legend */}
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', paddingTop: 4 }}>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', paddingTop: 3 }}>
                 {[
-                    { color: KEY_ACCENT_COLORS.next, label: 'Next key' },
-                    { color: KEY_ACCENT_COLORS.correct, label: 'Correct' },
-                    { color: KEY_ACCENT_COLORS.error, label: 'Wrong' },
-                ].map(({ color, label }) => (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: 2, background: color, boxShadow: `0 0 6px ${color}` }} />
-                        <span style={{ fontSize: 8, color: '#555', fontFamily: 'Orbitron, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+                    { c: C.next, t: 'Next' },
+                    { c: C.correct, t: 'Correct' },
+                    { c: C.error, t: 'Wrong' },
+                    { c: C.pressed, t: 'Pressed' },
+                ].map(({ c, t }) => (
+                    <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: 2, background: c, boxShadow: `0 0 6px ${c}` }} />
+                        <span style={{ fontSize: 7, color: '#444', fontFamily: 'Orbitron,sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t}</span>
                     </div>
                 ))}
             </div>
