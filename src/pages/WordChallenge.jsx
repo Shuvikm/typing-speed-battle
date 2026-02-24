@@ -5,32 +5,34 @@ import StreakBadge from '../components/StreakBadge';
 import Confetti from '../components/Confetti';
 import useSounds from '../hooks/useSounds';
 
-// ─── Word Pool ─────────────────────────────────────────────────────────────────
-const WORDS = [
-    // Common short words
-    'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he',
-    'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
-    'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out',
-    'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time',
-    // Anime themed
-    'luffy', 'zoro', 'nami', 'sanji', 'chopper', 'robin', 'franky', 'brook', 'usopp',
-    'naruto', 'sasuke', 'sakura', 'kakashi', 'itachi', 'gaara', 'tsunade', 'orochimaru',
-    'goku', 'vegeta', 'gohan', 'piccolo', 'frieza', 'trunks', 'bulma', 'krillin',
-    'ichigo', 'rukia', 'orihime', 'chad', 'uryu', 'byakuya', 'toshiro', 'rangiku',
-    'saitama', 'genos', 'garou', 'silver', 'tatsumaki', 'king', 'bang', 'tornado',
-    'deku', 'bakugo', 'todoroki', 'iida', 'uraraka', 'all-might', 'endeavor',
-    'eren', 'mikasa', 'armin', 'levi', 'hange', 'erwin', 'reiner', 'annie',
-    'pirate', 'sword', 'devil', 'fruit', 'haki', 'grand', 'line', 'navy',
-    'jutsu', 'chakra', 'sharingan', 'rinnegan', 'byakugan', 'rasengan', 'chidori',
-    'titan', 'wall', 'survey', 'corps', 'omni', 'gear', 'thunder', 'lightning',
-    // Action words
-    'battle', 'fight', 'power', 'speed', 'combo', 'streak', 'blaze', 'fury',
-    'strike', 'dash', 'slash', 'blast', 'surge', 'burst', 'smash', 'rush',
-    'swift', 'quick', 'rapid', 'flash', 'turbo', 'hyper', 'ultra', 'mega', 'super',
-    // Skill words
-    'accuracy', 'precision', 'rhythm', 'flow', 'focus', 'stamina', 'agility',
-    'master', 'legend', 'champion', 'victor', 'conquer', 'achieve', 'dominate',
-];
+// ─── Word Pools by Difficulty ─────────────────────────────────────────────────
+const WORD_POOLS = {
+    easy: [
+        'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with',
+        'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her',
+        'or', 'an', 'will', 'my', 'one', 'all', 'so', 'up', 'out', 'if', 'who', 'get', 'go', 'me',
+        'luffy', 'zoro', 'nami', 'goku', 'sword', 'power', 'speed', 'quick', 'dash', 'rush',
+        'fire', 'wind', 'water', 'earth', 'light', 'dark', 'hero', 'king', 'ace', 'law',
+    ],
+    medium: [
+        'battle', 'pirate', 'chakra', 'naruto', 'sasuke', 'rinnegan', 'sharingan', 'byakugan',
+        'accurate', 'precision', 'rhythm', 'combat', 'mission', 'journey', 'demon', 'survey',
+        'slayer', 'titan', 'survey', 'corps', 'haki', 'grand', 'line', 'devil', 'fruit',
+        'jutsu', 'rasengan', 'chidori', 'lightning', 'thunder', 'conquer', 'achieve',
+        'stamina', 'agility', 'master', 'legend', 'champion', 'victor', 'dominate',
+        'bakugo', 'todoroki', 'deku', 'ichigo', 'bleach', 'hollow', 'quincy', 'zanpakuto',
+    ],
+    hard: [
+        'philosopher', 'exterminate', 'extraordinary', 'determination', 'unobtainable',
+        'omnidirectional', 'thunderclap', 'equivalence', 'transmutation', 'philosopher',
+        'accountability', 'consciousness', 'incomprehensible', 'disproportionate',
+        'tatsumaki', 'saitama', 'coordination', 'concentration', 'acceleration',
+        'reconnaissance', 'documentation', 'systematically', 'revolutionary',
+        'electromagnetic', 'extraordinaire', 'uncompromising', 'interconnected',
+    ],
+};
+// Combined (all difficulties shown in medium/easy mix)
+const WORDS = [...WORD_POOLS.easy, ...WORD_POOLS.medium];
 
 function shuffle(arr) {
     const a = [...arr];
@@ -59,8 +61,9 @@ const WordChallenge = () => {
     const navigate = useNavigate();
     const { playTick, playError, playCombo } = useSounds();
 
-    const [phase, setPhase] = useState('intro'); // intro | countdown | typing | results
-    const [words, setWords] = useState(() => shuffle(WORDS));
+    const [phase, setPhase] = useState('intro');
+    const [difficulty, setDifficulty] = useState('medium');
+    const [words, setWords] = useState(() => shuffle(WORD_POOLS.medium));
     const [wordIndex, setWordIndex] = useState(0);
     const [input, setInput] = useState('');
     const [correct, setCorrect] = useState(0);
@@ -70,9 +73,11 @@ const WordChallenge = () => {
     const [flashCorrect, setFlashCorrect] = useState(false);
     const [flashWrong, setFlashWrong] = useState(false);
     const [wpm, setWpm] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(60);
     const [isNewBest, setIsNewBest] = useState(false);
     const [prevBest] = useState(getBest);
+
+    const TIMER_BY_DIFF = { easy: 90, medium: 60, hard: 45 };
+    const [timeLeft, setTimeLeft] = useState(TIMER_BY_DIFF[difficulty]);
 
     const startTimeRef = useRef(null);
     const correctRef = useRef(0);
@@ -154,7 +159,7 @@ const WordChallenge = () => {
 
     const restart = () => {
         setPhase('intro');
-        setWords(shuffle(WORDS));
+        setWords(shuffle(WORD_POOLS[difficulty]));
         setWordIndex(0);
         setInput('');
         setCorrect(0);
@@ -162,7 +167,7 @@ const WordChallenge = () => {
         setStreak(0);
         setCombo(0);
         setWpm(0);
-        setTimeLeft(60);
+        setTimeLeft(TIMER_BY_DIFF[difficulty]);
         correctRef.current = 0;
     };
 
@@ -191,6 +196,30 @@ const WordChallenge = () => {
                         }}>WORD CHALLENGE</h1>
                         <p className="text-gray-400 text-lg mb-8">Type each word and press <kbd style={{ background: '#1a1a2e', border: '1px solid #00FF41', borderRadius: 4, padding: '2px 8px', color: '#00FF41', fontFamily: 'Orbitron, sans-serif', fontSize: 12 }}>Space</kbd> to confirm. 60 seconds.</p>
 
+                        {/* Difficulty selector */}
+                        <div className="mb-6">
+                            <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 text-center" style={{ fontFamily: 'Orbitron, sans-serif' }}>Difficulty</div>
+                            <div className="flex gap-3 justify-center">
+                                {[['easy', '😊 Easy', '#00FF41', 90], ['medium', '⚔️ Medium', '#FFD700', 60], ['hard', '💀 Hard', '#FF4444', 45]].map(([d, label, color, secs]) => (
+                                    <button
+                                        key={d}
+                                        onClick={() => setDifficulty(d)}
+                                        style={{
+                                            padding: '8px 18px', borderRadius: 10, fontWeight: 700, fontSize: 13,
+                                            fontFamily: 'Orbitron, sans-serif', cursor: 'pointer', transition: 'all 0.2s',
+                                            background: difficulty === d ? `linear-gradient(135deg, ${color}30, ${color}10)` : '#0a0a0f',
+                                            border: `2px solid ${difficulty === d ? color : '#333'}`,
+                                            color: difficulty === d ? color : '#555',
+                                            boxShadow: difficulty === d ? `0 0 14px ${color}40` : 'none',
+                                            transform: difficulty === d ? 'scale(1.06)' : 'scale(1)',
+                                        }}
+                                    >
+                                        {label}
+                                        <div style={{ fontSize: 10, color: difficulty === d ? color + 'aa' : '#333', marginTop: 2 }}>{secs}s</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                         <div className="rounded-2xl p-6 mb-6" style={{ background: '#1a1a2e', border: '2px solid #00FF4130', boxShadow: '0 0 30px rgba(0,255,65,0.08)' }}>
                             <div className="grid grid-cols-3 gap-4 text-center">
                                 {[
@@ -213,7 +242,11 @@ const WordChallenge = () => {
                         </div>
 
                         <button
-                            onClick={() => setPhase('countdown')}
+                            onClick={() => {
+                                setWords(shuffle(WORD_POOLS[difficulty]));
+                                setTimeLeft(TIMER_BY_DIFF[difficulty]);
+                                setPhase('countdown');
+                            }}
                             className="w-full py-4 rounded-2xl text-xl font-bold"
                             style={{ background: 'linear-gradient(135deg, #00FF41, #00D9FF)', color: '#000', fontFamily: 'Audiowide, sans-serif', boxShadow: '0 0 30px #00FF4140' }}
                             onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
@@ -230,10 +263,11 @@ const WordChallenge = () => {
         );
     }
 
-    // ─── COUNTDOWN ───────────────────────────────────────────────────────────────
     if (phase === 'countdown') {
         return <AnimatedCountdown from={3} onDone={handleCountdownDone} />;
     }
+
+
 
     // ─── RESULTS ─────────────────────────────────────────────────────────────────
     if (phase === 'results') {
