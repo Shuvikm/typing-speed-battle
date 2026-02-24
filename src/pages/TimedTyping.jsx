@@ -4,6 +4,7 @@ import Confetti from '../components/Confetti';
 import AnimatedCountdown from '../components/AnimatedCountdown';
 import WpmSparkline from '../components/WpmSparkline';
 import VirtualKeyboard from '../components/VirtualKeyboard';
+import KeyboardHeatmap from '../components/KeyboardHeatmap';
 import { saveBestWpm, getBestWpm, getLeaderboard } from '../utils/gameLogic';
 
 // ─── Passages by difficulty ────────────────────────────────────────────────────
@@ -72,10 +73,12 @@ const TimedTyping = () => {
     const [isNewPB, setIsNewPB] = useState(false);
     const [prevBest, setPrevBest] = useState(0);
     const [leaderboard, setLeaderboard] = useState([]);
+    const [heatmap, setHeatmap] = useState({});
 
     const inputRef = useRef(null);
     const startTimeRef = useRef(null);
     const statsRef = useRef({ correct: 0, wrong: 0, total: 0, words: 0 });
+    const heatmapRef = useRef({});  // keystroke frequency map
 
     const currentPassage = passages[passageIndex] || passages[0];
 
@@ -130,6 +133,7 @@ const TimedTyping = () => {
         setPassageIndex(0);
         setWpmHistory([]);
         statsRef.current = { correct: 0, wrong: 0, total: 0, words: 0 };
+        heatmapRef.current = {};
     }, []);
 
     const endTest = useCallback(() => {
@@ -149,6 +153,7 @@ const TimedTyping = () => {
         setFinalAccuracy(fAcc);
         setFinalCorrect(statsRef.current.correct);
         setFinalWrong(statsRef.current.wrong);
+        setHeatmap({ ...heatmapRef.current });
         setPhase('results');
     }, [selectedTime]);
 
@@ -185,6 +190,14 @@ const TimedTyping = () => {
         setUserInput(val);
         setCorrectChars(newCorrect);
         statsRef.current = { correct: newCorrect, wrong: newWrong, total: val.length, words };
+
+        // Track keystroke heatmap (last typed char)
+        if (val.length > userInput.length) {
+            const ch = val[val.length - 1].toLowerCase();
+            if (/^[a-z]$/.test(ch)) {
+                heatmapRef.current[ch] = (heatmapRef.current[ch] || 0) + 1;
+            }
+        }
 
         if (val === target) {
             setPassageIndex(prev => (prev + 1) % passages.length);
@@ -399,6 +412,13 @@ const TimedTyping = () => {
                                         );
                                     })}
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Keyboard heatmap */}
+                        {Object.keys(heatmap).length > 0 && (
+                            <div style={{ animation: 'bounce-in 0.5s ease-out 0.4s both', marginBottom: 24 }}>
+                                <KeyboardHeatmap heatmap={heatmap} title="Keystroke Heatmap" />
                             </div>
                         )}
 

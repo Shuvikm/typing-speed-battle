@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AnimatedCountdown from '../components/AnimatedCountdown';
 import StreakBadge from '../components/StreakBadge';
 import Confetti from '../components/Confetti';
+import ComboBurst from '../components/ComboBurst';
 import useSounds from '../hooks/useSounds';
 
 // ─── Word Pools by Difficulty ─────────────────────────────────────────────────
@@ -75,6 +76,9 @@ const WordChallenge = () => {
     const [wpm, setWpm] = useState(0);
     const [isNewBest, setIsNewBest] = useState(false);
     const [prevBest] = useState(getBest);
+    const [comboBurstTrigger, setComboBurstTrigger] = useState(0);
+    const [comboBurstPos, setComboBurstPos] = useState({ x: null, y: null });
+    const wordCardRef = useRef(null);
 
     const TIMER_BY_DIFF = { easy: 90, medium: 60, hard: 45 };
     const [timeLeft, setTimeLeft] = useState(TIMER_BY_DIFF[difficulty]);
@@ -143,7 +147,17 @@ const WordChallenge = () => {
             setFlashCorrect(true);
             setTimeout(() => setFlashCorrect(false), 350);
             playTick();
-            if (newStreak % 5 === 0 && newStreak > 0) playCombo(newCombo);
+            if (newStreak % 5 === 0 && newStreak > 0) {
+                playCombo(newCombo);
+                // Fire particle burst from the word card center
+                const card = wordCardRef.current;
+                const rect = card ? card.getBoundingClientRect() : null;
+                const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+                const cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+                setComboBurstTrigger(t => t + 1);
+                // Store position for burst
+                setComboBurstPos({ x: cx, y: cy });
+            }
         } else {
             // Wrong
             setWrong(w => w + 1);
@@ -363,8 +377,12 @@ const WordChallenge = () => {
                     </div>
                 )}
 
+                {/* Particle burst on combo */}
+                <ComboBurst trigger={comboBurstTrigger} x={comboBurstPos.x} y={comboBurstPos.y} count={16} />
+
                 {/* Word display */}
                 <div
+                    ref={wordCardRef}
                     className="rounded-2xl p-8 mb-5 text-center"
                     style={{
                         background: flashCorrect
