@@ -59,6 +59,11 @@ const TimedTyping = () => {
     // WPM mini-graph
     const [wpmHistory, setWpmHistory] = useState([]);
 
+    // Ghost bot state
+    const [ghostProgress, setGhostProgress] = useState(0);
+    const ghostRef = useRef(null);
+    const GHOST_WPM = 75; // target ghost speed in WPM
+
     // Results
     const [finalWpm, setFinalWpm] = useState(0);
     const [finalAccuracy, setFinalAccuracy] = useState(100);
@@ -495,6 +500,22 @@ const TimedTyping = () => {
                             style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #B026FF, #00D9FF)', boxShadow: '0 0 8px #B026FF' }} />
                     </div>
                     <span className="text-xs text-gray-500">{Math.round(progress)}%</span>
+                </div>
+
+                {/* Ghost Bot Race */}
+                <div className="rounded-xl mb-3 p-3" style={{ background: '#1a1a2e', border: '1px solid #B026FF20' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 10, color: '#555', fontFamily: 'Orbitron,sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>You</span>
+                        <span style={{ fontSize: 10, color: '#B026FF88', fontFamily: 'Orbitron,sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>🤖 Ghost ({GHOST_WPM} WPM)</span>
+                    </div>
+                    {/* User bar */}
+                    <div style={{ position: 'relative', height: 8, borderRadius: 9999, background: '#0a0a0f', marginBottom: 4, overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', inset: 0, width: `${progress}%`, background: 'linear-gradient(90deg, #00D9FF, #B026FF)', borderRadius: 9999, boxShadow: '0 0 8px #00D9FF', transition: 'width 0.3s ease' }} />
+                    </div>
+                    {/* Ghost bar */}
+                    <div style={{ position: 'relative', height: 6, borderRadius: 9999, background: '#0a0a0f', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', inset: 0, width: `${ghostProgress}%`, background: 'linear-gradient(90deg, #B026FF60, #FF4444a0)', borderRadius: 9999, boxShadow: '0 0 6px #B026FF', transition: 'width 0.5s ease' }} />
+                    </div>
                 </div>
 
                 {/* Text display */}
