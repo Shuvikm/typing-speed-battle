@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createSocket, socketEvents } from '../utils/socket';
-import { getRankTitle } from '../utils/gameLogic';
+import { getRankTitle, getBestWpm, saveBestWpm } from '../utils/gameLogic';
 import Avatar from '../components/Avatar';
 import Confetti from '../components/Confetti';
+import NewRecordBanner from '../components/NewRecordBanner';
 
 const Results = () => {
   const [searchParams] = useSearchParams();
@@ -17,10 +18,11 @@ const Results = () => {
   const [allResults, setAllResults] = useState([]);
   const [isWinner, setIsWinner] = useState(false);
   const [rank] = useState(getRankTitle(wpm));
-  // Counting animation
   const [displayWpm, setDisplayWpm] = useState(0);
   const [displayAcc, setDisplayAcc] = useState(0);
   const [podiumVisible, setPodiumVisible] = useState(false);
+  const [showRecord, setShowRecord] = useState(false);
+  const [prevBest] = useState(() => getBestWpm(60) || 0); // default 60s
 
   useEffect(() => {
     if (mode === 'battle' && roomId) {
@@ -64,6 +66,18 @@ const Results = () => {
     return () => clearTimeout(t);
   }, []);
 
+  // Check new PB for solo mode
+  useEffect(() => {
+    if (mode === 'solo' && wpm > 0) {
+      const old = getBestWpm(60) || 0;
+      if (wpm > old) {
+        saveBestWpm(60, wpm);
+        setShowRecord(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const sortedResults = [...allResults].sort((a, b) => b.wpm - a.wpm);
 
   const grade = wpm >= 100 ? 'S' : wpm >= 80 ? 'A' : wpm >= 60 ? 'B' : wpm >= 40 ? 'C' : 'D';
@@ -74,6 +88,10 @@ const Results = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg bg-grid-pattern relative overflow-hidden">
+      {showRecord && (
+        <NewRecordBanner wpm={wpm} prevBest={prevBest} onDone={() => setShowRecord(false)} />
+      )}
+
       {/* Background glow */}
       {isWinner && (
         <div className="absolute inset-0" style={{
@@ -137,6 +155,29 @@ const Results = () => {
               </div>
             ))}
           </div>
+
+          {/* PB Delta (solo mode) */}
+          {mode === 'solo' && prevBest > 0 && (
+            <div className="mb-6 rounded-2xl p-4 text-center" style={{
+              background: wpm > prevBest
+                ? 'linear-gradient(135deg,rgba(0,255,65,0.1),rgba(0,217,255,0.05))'
+                : 'linear-gradient(135deg,rgba(176,38,255,0.08),rgba(255,68,68,0.05))',
+              border: `1px solid ${wpm > prevBest ? '#00FF4140' : '#B026FF30'}`,
+              animation: 'bounce-in 0.5s ease-out 0.3s both',
+            }}>
+              <div style={{ fontSize: 11, color: '#555', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'Orbitron,sans-serif', marginBottom: 4 }}>vs Personal Best</div>
+              <div style={{
+                fontSize: 28, fontWeight: 900, fontFamily: 'Orbitron,sans-serif',
+                color: wpm > prevBest ? '#00FF41' : '#B026FF',
+                filter: `drop-shadow(0 0 10px ${wpm > prevBest ? '#00FF41' : '#B026FF'})`,
+              }}>
+                {wpm > prevBest ? '+' : ''}{wpm - prevBest} WPM
+              </div>
+              <div style={{ fontSize: 12, color: '#555', marginTop: 2 }}>
+                {wpm > prevBest ? '🎉 New personal best!' : `Best: ${prevBest} WPM`}
+              </div>
+            </div>
+          )}
 
           {/* Podium (Battle Mode) */}
           {mode === 'battle' && sortedResults.length > 1 && podiumVisible && (
