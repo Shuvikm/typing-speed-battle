@@ -7,6 +7,8 @@ import Results from './pages/Results';
 import Quiz from './pages/Quiz';
 import TimedTyping from './pages/TimedTyping';
 import NotFound from './pages/NotFound';
+import Stats from './pages/Stats';
+import WordChallenge from './pages/WordChallenge';
 import SoundToggle from './components/SoundToggle';
 import './App.css';
 
@@ -21,6 +23,8 @@ function App() {
         <Route path="/results" element={<Results />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/timed" element={<TimedTyping />} />
+        <Route path="/stats" element={<Stats />} />
+        <Route path="/words" element={<WordChallenge />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

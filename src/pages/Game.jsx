@@ -8,10 +8,17 @@ import AnimatedCountdown from '../components/AnimatedCountdown';
 import StreakBadge from '../components/StreakBadge';
 import RaceTrack from '../components/RaceTrack';
 import Confetti from '../components/Confetti';
+import useSounds from '../hooks/useSounds';
+import VirtualKeyboard from '../components/VirtualKeyboard';
 
 const SOLO_TEXT = "The quick brown fox jumps over the lazy dog. One Piece is the greatest anime of all time. Luffy will become the Pirate King! The Straw Hat crew sails the Grand Line together. Zoro aims to become the world's greatest swordsman. Nami navigates the treacherous seas with skill.";
 
 const Game = () => {
+  const { playTick, playError, playCombo } = useSounds();
+  const [lastError, setLastError] = useState(false);
+  // Ghost AI bot progress (solo mode only)
+  const [botProgress, setBotProgress] = useState(0);
+  const botRef = useRef(null);
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get('roomId');
   const mode = searchParams.get('mode') || 'solo';
@@ -134,13 +141,22 @@ const Game = () => {
 
     setCorrectChars(newCorrect);
     setCorrectStreak(newStreak);
-    setCombo(calculateCombo(newStreak));
+    const newComboLevel = calculateCombo(newStreak);
+    setCombo(newComboLevel);
     setAccuracy(calculateAccuracy(newCorrect, value.length));
 
-    // Shake on wrong character
+    // Sound FX
     if (lastWasWrong) {
+      playError();
+      setLastError(true);
+      setTimeout(() => setLastError(false), 400);
       setInputShake(true);
       setTimeout(() => setInputShake(false), 400);
+    } else if (value.length > 0) {
+      setLastError(false);
+      playTick();
+      // Combo milestone every 10 correct chars
+      if (newStreak > 0 && newStreak % 10 === 0) playCombo(newComboLevel);
     }
 
     if (value === text) {
@@ -176,6 +192,23 @@ const Game = () => {
   const progress = text.length > 0 ? (userInput.length / text.length) * 100 : 0;
   const progressColor = progress < 30 ? '#00D9FF' : progress < 70 ? '#FFD700' : '#00FF41';
 
+  // Ghost AI bot — types at 65-80 WPM with human jitter (solo mode only)
+  useEffect(() => {
+    if (mode !== 'solo' || !gameStarted || finished || !text.length) return;
+    const BOT_WPM = 68 + Math.floor(Math.random() * 18); // 68-86 WPM
+    const charsPerSec = (BOT_WPM * 5) / 60;
+    setBotProgress(0);
+    const tick = () => {
+      setBotProgress(prev => {
+        const jitter = 0.7 + Math.random() * 0.6; // 0.7–1.3 speed variation
+        const next = prev + (charsPerSec * jitter) / text.length * 100 * 0.4;
+        return Math.min(next, 100);
+      });
+    };
+    botRef.current = setInterval(tick, 400);
+    return () => clearInterval(botRef.current);
+  }, [mode, gameStarted, finished, text]);
+
   // Countdown overlay
   if (showCountdown) {
     return <AnimatedCountdown from={3} onDone={handleCountdownDone} />;
@@ -183,14 +216,13 @@ const Game = () => {
 
   // Build race track players array (includes self)
   const selfPlayer = {
-    id: 'self',
-    name: 'You',
-    avatar: 'luffy',
-    progress,
-    wpm,
-    isYou: true,
+    id: 'self', name: 'You', avatar: 'luffy', progress, wpm, isYou: true,
   };
-  const racePlayers = [selfPlayer, ...opponents.map(o => ({ ...o, progress: o.progress || 0 }))];
+  const botPlayer = mode === 'solo' ? [{
+    id: 'ghost-bot', name: '🤖 Rival Bot', avatar: 'zoro',
+    progress: botProgress, wpm: 68, isBot: true,
+  }] : [];
+  const racePlayers = [selfPlayer, ...botPlayer, ...opponents.map(o => ({ ...o, progress: o.progress || 0 }))];
 
   return (
     <div className="min-h-screen bg-dark-bg bg-grid-pattern relative overflow-hidden">
@@ -301,6 +333,17 @@ const Game = () => {
                 autoFocus
               />
             </div>
+
+            {/* Interactive Virtual Keyboard */}
+            {gameStarted && !finished && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, overflow: 'hidden' }}>
+                <VirtualKeyboard
+                  nextChar={text[userInput.length] || ''}
+                  lastError={lastError}
+                  compact
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}

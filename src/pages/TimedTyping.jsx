@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Confetti from '../components/Confetti';
 import AnimatedCountdown from '../components/AnimatedCountdown';
+import WpmSparkline from '../components/WpmSparkline';
+import VirtualKeyboard from '../components/VirtualKeyboard';
 import { saveBestWpm, getBestWpm, getLeaderboard } from '../utils/gameLogic';
 
 // ─── Passages by difficulty ────────────────────────────────────────────────────
@@ -475,25 +477,11 @@ const TimedTyping = () => {
                     </div>
                 </div>
 
-                {/* WPM mini-graph */}
+                {/* WPM sparkline */}
                 {wpmHistory.length > 0 && (
-                    <div className="rounded-xl p-3 mb-4 flex items-end gap-1" style={{ background: '#1a1a2e', border: '1px solid #B026FF20', height: '64px' }}>
-                        <span className="text-xs text-gray-600 mr-1 self-center" style={{ writingMode: 'vertical-rl', fontSize: '9px' }}>WPM</span>
-                        {[...Array(10)].map((_, i) => {
-                            const val = wpmHistory[wpmHistory.length - 10 + i] ?? 0;
-                            const pct = wpmMax > 0 ? (val / wpmMax) * 100 : 0;
-                            return (
-                                <div key={i} className="flex-1 rounded-t-sm relative" style={{ height: '100%', display: 'flex', alignItems: 'flex-end' }}>
-                                    <div style={{
-                                        width: '100%',
-                                        height: `${Math.max(pct, 4)}%`,
-                                        background: val > 0 ? 'linear-gradient(180deg, #00D9FF, #B026FF)' : '#222',
-                                        borderRadius: '3px 3px 0 0',
-                                        transition: 'height 0.4s ease',
-                                    }} />
-                                </div>
-                            );
-                        })}
+                    <div className="rounded-xl p-3 mb-4" style={{ background: '#1a1a2e', border: '1px solid #B026FF20' }}>
+                        <div className="text-xs text-gray-600 uppercase tracking-widest mb-1" style={{ fontSize: 9 }}>WPM Trend</div>
+                        <WpmSparkline history={wpmHistory} color="#B026FF" height={56} />
                     </div>
                 )}
 
@@ -544,6 +532,15 @@ const TimedTyping = () => {
                         autoCorrect="off"
                         autoCapitalize="off"
                         spellCheck="false"
+                    />
+                </div>
+
+                {/* Interactive Virtual Keyboard */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                    <VirtualKeyboard
+                        nextChar={currentPassage[userInput.length] || ''}
+                        lastError={inputShake}
+                        compact
                     />
                 </div>
 

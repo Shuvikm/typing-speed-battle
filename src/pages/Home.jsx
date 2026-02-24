@@ -81,6 +81,28 @@ const Home = () => {
       path: '/timed',
       badge: '🆕 HOT',
     },
+    {
+      emoji: '💬',
+      title: 'Word Challenge',
+      desc: 'Type 200+ words one-by-one, beat your best WPM!',
+      color: '#00FF41',
+      gradient: 'linear-gradient(135deg, rgba(0,255,65,0.15), rgba(0,217,255,0.05))',
+      border: '#00FF41',
+      shadow: '#00FF4140',
+      delay: '0.5s',
+      path: '/words',
+    },
+    {
+      emoji: '📊',
+      title: 'Stats',
+      desc: 'View your WPM history, grades and personal bests',
+      color: '#00D9FF',
+      gradient: 'linear-gradient(135deg, rgba(0,217,255,0.12), rgba(176,38,255,0.05))',
+      border: '#00D9FF',
+      shadow: '#00D9FF40',
+      delay: '0.6s',
+      path: '/stats',
+    },
   ];
 
   return (
@@ -188,8 +210,8 @@ const Home = () => {
             <span style={{ color: '#FFD700', fontWeight: 700 }}>Pirate King</span> of keyboards!
           </p>
 
-          {/* Mode cards — 2x2 grid on mobile, 4 cols on large */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-5xl mb-10">
+          {/* Mode cards — 2x2 grid on mobile, 3 cols on md, 6 on xl */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5 w-full max-w-6xl mb-10">
             {modes.map((mode, idx) => (
               <div
                 key={idx}
@@ -281,9 +303,10 @@ const Home = () => {
               }}
             >
               {[
-                { label: 'Modes', value: '4' },
+                { label: 'Modes', value: '6' },
                 { label: 'Questions', value: '50+' },
                 { label: 'Passages', value: '15' },
+                { label: 'Words', value: '200+' },
                 { label: 'Players', value: '∞' },
               ].map((stat, i) => (
                 <div key={i}>
