@@ -5,6 +5,8 @@ import AnimatedCountdown from '../components/AnimatedCountdown';
 import WpmSparkline from '../components/WpmSparkline';
 import VirtualKeyboard from '../components/VirtualKeyboard';
 import KeyboardHeatmap from '../components/KeyboardHeatmap';
+import NewRecordBanner from '../components/NewRecordBanner';
+import useSounds from '../hooks/useSounds';
 import { saveBestWpm, getBestWpm, getLeaderboard } from '../utils/gameLogic';
 
 // ─── Passages by difficulty ────────────────────────────────────────────────────
@@ -41,6 +43,7 @@ const DIFF_LABELS = { easy: '😊 Easy', medium: '⚔️ Medium', hard: '💀 Ha
 
 const TimedTyping = () => {
     const navigate = useNavigate();
+    const { playTick, playError } = useSounds();
     const [phase, setPhase] = useState('select'); // select | countdown | typing | results
     const [selectedTime, setSelectedTime] = useState(60);
     const [difficulty, setDifficulty] = useState('medium');
@@ -72,6 +75,7 @@ const TimedTyping = () => {
     const [finalWrong, setFinalWrong] = useState(0);
     const [isNewPB, setIsNewPB] = useState(false);
     const [prevBest, setPrevBest] = useState(0);
+    const [showNewRecordBanner, setShowNewRecordBanner] = useState(false);
     const [leaderboard, setLeaderboard] = useState([]);
     const [heatmap, setHeatmap] = useState({});
 
@@ -112,6 +116,24 @@ const TimedTyping = () => {
         return () => clearInterval(iv);
     }, [phase]);
 
+    // Ghost bot movement — advances at GHOST_WPM chars/sec
+    useEffect(() => {
+        if (phase !== 'typing') return;
+        setGhostProgress(0);
+        const charsPerSec = (GHOST_WPM * 5) / 60;
+        const totalChars = currentPassage.length || 1;
+        const tick = () => {
+            setGhostProgress(prev => {
+                const jitter = 0.75 + Math.random() * 0.5;
+                const next = prev + (charsPerSec * jitter / totalChars) * 100 * 0.4;
+                return Math.min(next, 100);
+            });
+        };
+        ghostRef.current = setInterval(tick, 400);
+        return () => clearInterval(ghostRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [phase]);
+
     // Keyboard shortcuts during typing
     useEffect(() => {
         if (phase !== 'typing') return;
@@ -137,6 +159,7 @@ const TimedTyping = () => {
     }, []);
 
     const endTest = useCallback(() => {
+        clearInterval(ghostRef.current);
         const elapsed = (Date.now() - startTimeRef.current) / 60000;
         const fWpm = elapsed > 0 ? Math.round(statsRef.current.words / elapsed) : 0;
         const fAcc = statsRef.current.total > 0
@@ -147,6 +170,7 @@ const TimedTyping = () => {
         setPrevBest(pb);
         const newPB = saveBestWpm(selectedTime, fWpm);
         setIsNewPB(newPB);
+        if (newPB) setShowNewRecordBanner(true);
         setLeaderboard(getLeaderboard(selectedTime));
 
         setFinalWpm(fWpm);
@@ -176,11 +200,20 @@ const TimedTyping = () => {
             }
         }
 
-        if (val.length > 0 && val.length <= target.length) {
-            const last = val.length - 1;
-            if (val[last] !== target[last]) {
+        // Sound FX & shake on last typed char
+        if (val.length > userInput.length) {
+            const lastIdx = val.length - 1;
+            if (lastIdx < target.length && val[lastIdx] !== target[lastIdx]) {
                 setInputShake(true);
                 setTimeout(() => setInputShake(false), 400);
+                playError();
+            } else {
+                playTick();
+            }
+            // Track keystroke heatmap
+            const ch = val[val.length - 1].toLowerCase();
+            if (/^[a-z]$/.test(ch)) {
+                heatmapRef.current[ch] = (heatmapRef.current[ch] || 0) + 1;
             }
         }
 
@@ -190,14 +223,6 @@ const TimedTyping = () => {
         setUserInput(val);
         setCorrectChars(newCorrect);
         statsRef.current = { correct: newCorrect, wrong: newWrong, total: val.length, words };
-
-        // Track keystroke heatmap (last typed char)
-        if (val.length > userInput.length) {
-            const ch = val[val.length - 1].toLowerCase();
-            if (/^[a-z]$/.test(ch)) {
-                heatmapRef.current[ch] = (heatmapRef.current[ch] || 0) + 1;
-            }
-        }
 
         if (val === target) {
             setPassageIndex(prev => (prev + 1) % passages.length);
@@ -312,6 +337,16 @@ const TimedTyping = () => {
         return (
             <div className="min-h-screen bg-dark-bg bg-grid-pattern relative overflow-hidden">
                 {finalWpm >= 60 && <Confetti count={80} />}
+
+                {/* 🏆 Full-screen New Record Banner overlay */}
+                {showNewRecordBanner && (
+                    <NewRecordBanner
+                        wpm={finalWpm}
+                        prevBest={prevBest}
+                        onDone={() => setShowNewRecordBanner(false)}
+                    />
+                )}
+
                 <div className="relative z-10 container mx-auto px-4 py-10">
                     <div className="max-w-3xl mx-auto">
                         <div className="text-center mb-8" style={{ animation: 'bounce-in 0.7s ease-out' }}>
@@ -326,8 +361,8 @@ const TimedTyping = () => {
                             </div>
                         </div>
 
-                        {/* 🏆 Personal Best Banner */}
-                        {isNewPB && (
+                        {/* Personal Best delta (compact, shown after banner auto-dismisses) */}
+                        {isNewPB && !showNewRecordBanner && (
                             <div
                                 className="text-center mb-6 rounded-2xl py-4 px-6"
                                 style={{
@@ -342,7 +377,7 @@ const TimedTyping = () => {
                                     NEW PERSONAL BEST!
                                 </div>
                                 <div className="text-sm text-gray-400 mt-1">
-                                    {prevBest > 0 ? `Previous best: ${prevBest} WPM → Now: ${finalWpm} WPM` : `First record: ${finalWpm} WPM!`}
+                                    {prevBest > 0 ? `+${finalWpm - prevBest} WPM · ${prevBest} → ${finalWpm} WPM` : `First record: ${finalWpm} WPM! 🚀`}
                                 </div>
                             </div>
                         )}

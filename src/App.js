@@ -10,12 +10,14 @@ import NotFound from './pages/NotFound';
 import Stats from './pages/Stats';
 import WordChallenge from './pages/WordChallenge';
 import SoundToggle from './components/SoundToggle';
+import ThemeToggle from './components/ThemeToggle';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <SoundToggle />
+      <ThemeToggle />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/room" element={<Room />} />

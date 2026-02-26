@@ -584,3 +584,48 @@
   animation: cursor-blink 0.8s step-end infinite;
   box-shadow: 0 0 8px #00D9FF;
 }
+
+/* ─── Light Theme ─────────────────────────────────────────────────────────── */
+/* Applied when <html class="light-theme"> via ThemeToggle component          */
+.light-theme body {
+  background-color: #f0f4ff !important;
+  color: #0d1a3a !important;
+}
+
+.light-theme .bg-dark-bg {
+  background-color: #f0f4ff !important;
+}
+
+.light-theme .bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(0, 80, 220, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 80, 220, 0.05) 1px, transparent 1px);
+  background-color: #f0f4ff !important;
+  background-size: 50px 50px;
+}
+
+/* Lighten inline dark surfaces */
+.light-theme [class*="rounded"] {
+  --lt-panel: #ffffff;
+}
+
+/* Explicitly flip text colours */
+.light-theme .text-white {
+  color: #0d1a3a !important;
+}
+
+.light-theme .text-gray-400,
+.light-theme .text-gray-500,
+.light-theme .text-gray-600 {
+  color: #4a5580 !important;
+}
+
+.light-theme .text-gray-300 {
+  color: #1a2850 !important;
+}
+
+/* Inputs */
+.light-theme input[type="text"] {
+  color: #0d1a3a !important;
+  background: #ffffff !important;
+}
