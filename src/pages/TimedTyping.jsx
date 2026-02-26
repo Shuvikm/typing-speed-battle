@@ -575,7 +575,7 @@ const TimedTyping = () => {
 
                 {/* Text display */}
                 <div className="rounded-2xl p-6 mb-4" style={{ background: '#1a1a2e', border: '1px solid #B026FF30', minHeight: '140px', boxShadow: '0 0 20px rgba(176,38,255,0.05)' }}>
-                    <div className="text-xl md:text-2xl font-mono leading-relaxed select-none">
+                    <div className="text-base md:text-xl font-mono leading-relaxed select-none" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
                         {currentPassage.split('').map((char, idx) => {
                             let color = '#444';
                             let bg = 'transparent';

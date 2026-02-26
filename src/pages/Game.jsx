@@ -297,9 +297,10 @@ const Game = () => {
                 background: '#1a1a2e',
                 border: '1px solid #00D9FF30',
                 boxShadow: '0 0 20px rgba(0,217,255,0.05)',
+                overflow: 'hidden',
               }}
             >
-              <div className="text-xl md:text-2xl font-mono leading-relaxed select-none">
+              <div className="text-base md:text-xl font-mono leading-relaxed select-none" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
                 {text.split('').map((char, index) => (
                   <span
                     key={index}

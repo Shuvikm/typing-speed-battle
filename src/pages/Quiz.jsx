@@ -473,7 +473,7 @@ const Quiz = () => {
 
           {/* Text */}
           <div className="rounded-2xl p-6 mb-5" style={{ background: '#1a1a2e', border: '1px solid #00D9FF30', minHeight: '180px' }}>
-            <div className="text-xl md:text-2xl font-mono leading-relaxed">
+            <div className="text-base md:text-xl font-mono leading-relaxed" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
               {typingText.split('').map((char, idx) => {
                 let color = '#444';
                 if (idx < userInput.length) color = userInput[idx] === char ? '#00FF41' : '#ff4444';
