@@ -36,4 +36,4 @@ const StreakBadge = ({ streak = 0, combo = 1 }) => {
     );
 };
 
-export default StreakBadge;
+export default React.memo(StreakBadge);

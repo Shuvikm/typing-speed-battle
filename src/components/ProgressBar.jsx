@@ -8,7 +8,7 @@ const ProgressBar = ({ progress, label, color = 'neon-blue', showLabel = true })
     'pirate-yellow': 'bg-pirate-yellow',
     'pirate-red': 'bg-pirate-red',
   };
-  
+
   return (
     <div className="w-full">
       {showLabel && label && (
@@ -29,5 +29,5 @@ const ProgressBar = ({ progress, label, color = 'neon-blue', showLabel = true })
   );
 };
 
-export default ProgressBar;
+export default React.memo(ProgressBar);
 

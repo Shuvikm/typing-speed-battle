@@ -19,7 +19,7 @@ const Avatar = ({ name, selected = false, onClick, size = 'md' }) => {
     md: 'w-16 h-16 text-2xl',
     lg: 'w-24 h-24 text-4xl',
   };
-  
+
   return (
     <div
       onClick={onClick}
@@ -38,5 +38,5 @@ const Avatar = ({ name, selected = false, onClick, size = 'md' }) => {
 };
 
 export { avatars };
-export default Avatar;
+export default React.memo(Avatar);
 
