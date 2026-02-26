@@ -21,7 +21,7 @@ const gameSchema = new mongoose.Schema({
     status: { type: String, enum: ['waiting', 'in-progress', 'completed'], default: 'waiting' },
 });
 
-gameSchema.index({ roomId: 1 });
+// Indexes (roomId index is auto-created via unique:true above)
 gameSchema.index({ startedAt: -1 });
 gameSchema.index({ status: 1 });
 
