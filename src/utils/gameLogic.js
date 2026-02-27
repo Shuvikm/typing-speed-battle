@@ -158,3 +158,28 @@ export const getLeaderboard = (durationSec) => {
     return [];
   }
 };
+
+/** Clears all stored stats, leaderboards, and personal bests from localStorage. */
+export const clearAllStats = () => {
+  try {
+    const WORDS_KEY = 'tsb_words_best';
+    const WPM_HISTORY_KEY = 'tsb_wpm_history';
+    localStorage.removeItem(LB_KEY);
+    localStorage.removeItem(WORDS_KEY);
+    localStorage.removeItem(WPM_HISTORY_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** Returns a summary object of all recorded stats for export/display. */
+export const exportStats = () => {
+  try {
+    const lbData = JSON.parse(localStorage.getItem(LB_KEY) || '{}');
+    const wordsBest = parseInt(localStorage.getItem('tsb_words_best') || '0', 10);
+    return { leaderboards: lbData, wordsBest, exportedAt: new Date().toISOString() };
+  } catch {
+    return null;
+  }
+};
